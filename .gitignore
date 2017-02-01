@@ -1,0 +1,8 @@
+*.php
+runGame.*
+*.log
+*.hlt
+halite
+
+!MyBot.php
+!RandomBot.php
