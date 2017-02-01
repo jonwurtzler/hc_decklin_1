@@ -2,25 +2,37 @@
 
 require_once 'hlt.php';
 require_once 'networking.php';
+require_once 'src/helpers/BotBrain.php';
+
+use src\helpers\BotBrain;
 
 list($myID, $gameMap) = getInit();
-sendInit('myPHPBot');
+sendInit('jwurtzle');
+
+$brain = new BotBrain();
 
 while (true) {
     $moves   = [];
     $gameMap = getFrame();
 
+    // Set base game variables
+    $brain->setMyId($myID)->setGameMap($gameMap);
+
     for ($y = 0; $y < $gameMap->height; ++$y) {
         for ($x = 0; $x < $gameMap->width; ++$x) {
-            $currSite = $gameMap->getSite(new Location($x, $y));
-            if ($currSite->owner === $myID) {
-                if ($currSite->strength < (5 * $currSite->production)) {
-                    return STILL;
-                }
 
-                $moves[] = new Move(new Location($x, $y), rand(0, 4));
+            $currLocation = new Location($x, $y);
+            $currSite     = $gameMap->getSite($currLocation);
+
+            if ($currSite->owner === $myID) {
+                $move = $brain->selectMove($currLocation, $currSite);
+
+                $moves[] = new Move(new Location($x, $y), $move);
             }
+
+
         }
     }
+
     sendFrame($moves);
 }
